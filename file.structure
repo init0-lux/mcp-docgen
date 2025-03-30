@@ -1,0 +1,13 @@
+mcp-docgen/
+├── bin/
+│   └── cli.js          # NPX entry point
+├── src/
+│   ├── agents/
+│   │   ├── git-agent.js
+│   │   └── ai-agent.js
+│   ├── mcp/
+│   │   └── parser.js
+│   └── templates/
+│       └── readme.ejs  # README template
+├── .mcp.yml           # Default config
+└── package.json

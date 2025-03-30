@@ -1,0 +1,9 @@
+# .mcp.yml (must include these minimum fields)
+project:
+  name: "Your Project Name"
+  stack: ["node"]  # Add your tech stack
+readme:
+  template: |
+    # {project.name}
+    ## Stack
+    {project.stack}
