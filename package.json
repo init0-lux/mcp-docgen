@@ -2,7 +2,9 @@
   "name": "mcp-docgen",
   "version": "1.0.0",
   "main": "index.js",
-  "bin": "./bin/cli.js",
+  "bin": {
+	  "mcp-docgen": "./bin/cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,9 +19,11 @@
     "install": "^0.13.0",
     "js-yaml": "^4.1.0",
     "npm": "^11.2.0",
+    "prompts": "^2.4.2",
     "simple-git": "^3.27.0"
   },
   "dependencies": {
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+	"prompts": "^2.4.2"
   }
 }
