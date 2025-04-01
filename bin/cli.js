@@ -1,9 +1,29 @@
 #! node
-
 'use strict';
 
+// Add this at the very top to suppress warnings
+process.removeAllListeners('warning');
+
+const { generateDocs } = require('../src/agents/git-agent');
+const { program } = require('commander');
+
+program
+  .command('docs')
+  .description('Generate documentation')
+  .action(async () => {
+    try {
+      await generateDocs();
+      console.log('✅ Documentation generated!');
+    } catch (err) {
+      console.error('❌ Error:', err.message);
+      process.exit(1);
+    }
+  });
+
+program.parse(process.argv);
+
+
 // Correct import path (note the .js extension)
-const { generateDocs, generateCommitMessage } = require('../src/agents/git-agent.js');
 const fs = require('fs');
 const path = require('path');
 const prompts = require('prompts');
@@ -46,6 +66,12 @@ async function main() {
 async function initConfigWizard() {
   console.log('🛠️  Welcome to MCP Config Wizard\n');
 
+	const files = fs.readdirSync(process.cwd());
+	if (files.length === 0) {
+	  console.log('ℹ️ Empty project detected. Using minimal defaults.');
+	  return generateMinimalConfig();
+	}
+
   const responses = await prompts([
     {
       type: 'text',
@@ -74,7 +100,35 @@ async function initConfigWizard() {
         { title: 'Google Style', value: 'google' },
         { title: 'TypeScript', value: 'typescript' }
       ]
-    }
+    },
+	{
+	  type: 'text',
+	  name: 'projectName',
+	  message: 'Project name?',
+	  initial: path.basename(process.cwd()),
+	  validate: value => {
+		const trimmed = value.trim();
+		if (!trimmed) return 'Name cannot be empty';
+		if (/[^a-z0-9-]/i.test(trimmed)) return 'Only alphanumeric and hyphens allowed';
+		return true;
+	  }
+	},
+	{
+	  type: (_, values) => values.readmeTemplate === 'custom' ? 'text' : null,
+	  name: 'customTemplatePath',
+	  message: 'Path to custom README template:',
+	  validate: value => {
+		try {
+		  const content = fs.readFileSync(value, 'utf8');
+		  if (!content.includes('{project.name}')) {
+			return 'Template must contain {project.name} placeholder';
+		  }
+		  return true;
+		} catch {
+		  return 'File not found or not readable';
+		}
+	  }
+	}
   ]);
 
   const config = {
@@ -92,6 +146,19 @@ async function initConfigWizard() {
 
   fs.writeFileSync('.mcp.yml', yaml.dump(config));
   console.log('\n✅ Generated .mcp.yml configuration file!');
+}
+
+function generateMinimalConfig() {
+  const config = {
+    project: {
+      name: path.basename(process.cwd()),
+      stack: ['custom']
+    },
+    docs: { style: 'basic' },
+    commits: { convention: 'simple' },
+    readme: { template: '# {project.name}\n\n## Development\n' }
+  };
+  fs.writeFileSync('.mcp.yml', yaml.dump(config));
 }
 
 main();

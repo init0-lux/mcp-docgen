@@ -1,11 +1,7 @@
-project: {}
-docs: {}
-readme:
-  template: |-
-    # undefined
+ai:
+  provider: "ollama" # or "gemini"
+  model: "gemini-pro" # or "codellama"
 
-    ## Features
-
-    ## Installation
-
-    ## Usage
+project:
+  name: "My Project"
+  stack: ["node"]
