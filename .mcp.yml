@@ -1,7 +1,23 @@
-ai:
-  provider: "ollama" # or "gemini"
-  model: "gemini-pro" # or "codellama"
-
 project:
-  name: "My Project"
-  stack: ["node"]
+  name: mcp-docgen
+  stack:
+    - typescript
+    - node
+
+ai:
+  provider: ollama
+  model: codellama
+  ollamaEndpoint: http://localhost:11434
+  maxTokens: 2048
+
+docs:
+  style: tsdoc
+  autoGenerate: false
+  examples: true
+
+commit:
+  convention: conventional
+  maxLength: 72
+
+readme:
+  includeToc: true
