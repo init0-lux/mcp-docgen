@@ -1,6 +1,7 @@
 import type { MCPConfig, AIProvider } from "../config/schema";
 import { OllamaProvider } from "./ollama";
 import { GeminiProvider } from "./gemini";
+import { ClaudeProvider } from "./claude";
 
 export type ContentType = "readme" | "commit" | "docs";
 
@@ -21,7 +22,7 @@ function buildProvider(name: AIProvider, config: MCPConfig): AIProviderClient {
     case "gemini":
       return new GeminiProvider(config);
     case "claude":
-      throw new Error("Claude provider not yet initialised");
+      return new ClaudeProvider(config);
   }
 }
 
