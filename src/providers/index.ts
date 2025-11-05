@@ -30,10 +30,10 @@ export async function generate(
   context: GenerationContext,
   config: MCPConfig,
 ): Promise<string> {
-  const primary = buildProvider(config.ai.provider, config);
   const errors: string[] = [];
 
   try {
+    const primary = buildProvider(config.ai.provider, config);
     return await primary.generate(context);
   } catch (err) {
     errors.push(
@@ -42,8 +42,8 @@ export async function generate(
   }
 
   if (config.ai.fallback && config.ai.fallback !== config.ai.provider) {
-    const fallback = buildProvider(config.ai.fallback, config);
     try {
+      const fallback = buildProvider(config.ai.fallback, config);
       return await fallback.generate(context);
     } catch (err) {
       errors.push(

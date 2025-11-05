@@ -209,9 +209,9 @@ function buildProvider(name, config) {
   }
 }
 async function generate(context, config) {
-  const primary = buildProvider(config.ai.provider, config);
   const errors = [];
   try {
+    const primary = buildProvider(config.ai.provider, config);
     return await primary.generate(context);
   } catch (err) {
     errors.push(
@@ -219,8 +219,8 @@ async function generate(context, config) {
     );
   }
   if (config.ai.fallback && config.ai.fallback !== config.ai.provider) {
-    const fallback = buildProvider(config.ai.fallback, config);
     try {
+      const fallback = buildProvider(config.ai.fallback, config);
       return await fallback.generate(context);
     } catch (err) {
       errors.push(
