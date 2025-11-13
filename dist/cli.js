@@ -214,25 +214,23 @@ async function generate(context, config) {
     const primary = buildProvider(config.ai.provider, config);
     return await primary.generate(context);
   } catch (err) {
-    errors.push(
-      `${config.ai.provider}: ${err instanceof Error ? err.message : String(err)}`
-    );
+    errors.push(new ProviderError(config.ai.provider, err));
   }
   if (config.ai.fallback && config.ai.fallback !== config.ai.provider) {
     try {
       const fallback = buildProvider(config.ai.fallback, config);
       return await fallback.generate(context);
     } catch (err) {
-      errors.push(
-        `${config.ai.fallback}: ${err instanceof Error ? err.message : String(err)}`
-      );
+      errors.push(new ProviderError(config.ai.fallback, err));
     }
   }
-  throw new Error(
+  throw new AggregateError(
+    errors,
     `All providers failed:
-${errors.map((e) => `  ${e}`).join("\n")}`
+${errors.map((e) => `  ${e.message}`).join("\n")}`
   );
 }
+var ProviderError;
 var init_providers = __esm({
   "src/providers/index.ts"() {
     "use strict";
@@ -240,6 +238,18 @@ var init_providers = __esm({
     init_ollama();
     init_gemini();
     init_claude();
+    ProviderError = class extends Error {
+      constructor(providerName, cause) {
+        super(
+          `Provider "${providerName}" failed: ${cause instanceof Error ? cause.message : String(cause)}`
+        );
+        this.providerName = providerName;
+        this.cause = cause;
+        this.name = "ProviderError";
+      }
+      providerName;
+      cause;
+    };
   }
 });
 

@@ -132,5 +132,9 @@ describe("fallback chain", () => {
     await expect(
       generate({ contentType: "commit", prompt: "test" }, config as any),
     ).rejects.toThrow("All providers failed");
+
+    await expect(
+      generate({ contentType: "commit", prompt: "test" }, config as any),
+    ).rejects.toBeInstanceOf(AggregateError);
   });
 });

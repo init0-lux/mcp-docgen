@@ -15,6 +15,18 @@ export interface AIProviderClient {
   healthCheck(): Promise<boolean>;
 }
 
+export class ProviderError extends Error {
+  constructor(
+    public readonly providerName: string,
+    public readonly cause: unknown,
+  ) {
+    super(
+      `Provider "${providerName}" failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+    );
+    this.name = "ProviderError";
+  }
+}
+
 function buildProvider(name: AIProvider, config: MCPConfig): AIProviderClient {
   switch (name) {
     case "ollama":
@@ -30,15 +42,13 @@ export async function generate(
   context: GenerationContext,
   config: MCPConfig,
 ): Promise<string> {
-  const errors: string[] = [];
+  const errors: ProviderError[] = [];
 
   try {
     const primary = buildProvider(config.ai.provider, config);
     return await primary.generate(context);
   } catch (err) {
-    errors.push(
-      `${config.ai.provider}: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    errors.push(new ProviderError(config.ai.provider, err));
   }
 
   if (config.ai.fallback && config.ai.fallback !== config.ai.provider) {
@@ -46,13 +56,12 @@ export async function generate(
       const fallback = buildProvider(config.ai.fallback, config);
       return await fallback.generate(context);
     } catch (err) {
-      errors.push(
-        `${config.ai.fallback}: ${err instanceof Error ? err.message : String(err)}`,
-      );
+      errors.push(new ProviderError(config.ai.fallback, err));
     }
   }
 
-  throw new Error(
-    `All providers failed:\n${errors.map((e) => `  ${e}`).join("\n")}`,
+  throw new AggregateError(
+    errors,
+    `All providers failed:\n${errors.map((e) => `  ${e.message}`).join("\n")}`,
   );
 }
