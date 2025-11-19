@@ -1,45 +1,139 @@
-README.md for Node Project
-===========================
+# mcp-docgen
 
-## Introduction
+AI-powered documentation generator for your codebase. Automatically generates README files, inline documentation comments, and conventional commit messages using local or cloud-based AI providers.
 
-This is a sample README file for a Node project. It introduces the basic concepts of the project, such as its name, stack, and purpose. The README file serves as an introduction to the project and should be written in a clear and concise manner.
+## Prerequisites
 
-## Project Name
+- **Node.js** ≥ 18
+- One of the following AI providers configured:
+  - [Ollama](https://ollama.ai) running locally (default)
+  - A [Gemini](https://ai.google.dev/) API key (`GEMINI_API_KEY` environment variable)
+  - An [Anthropic](https://console.anthropic.com/) API key (`ANTHROPIC_API_KEY` environment variable)
 
-The project is called `{project.name}`. This name is descriptive and easy to remember. It clearly conveys the purpose of the project, which is to demonstrate a Node application.
+## Installation
 
-## Stack
+```bash
+npm install -g mcp-docgen
+```
 
-The project uses the following technologies:
+## Quick Start
 
-* Node.js
-* Express.js
-* MongoDB
-* JWT (JSON Web Tokens) for authentication
+```bash
+# 1. Initialise a config file in your project root
+mcp-docgen init
 
-These technologies are the core components of the project and are used to build a scalable, secure, and maintainable web application.
+# 2. Generate a README based on your project's source files
+mcp-docgen docs
 
-## Purpose
+# 3. Generate a commit message from staged changes
+git add .
+mcp-docgen commit
+```
 
-The purpose of this project is to demonstrate how to create a Node application that uses a RESTful API, JWT authentication, and MongoDB as a database. The project is designed to be easy to understand and modify for different use cases. It is also designed to be scalable and maintainable, making it suitable for real-world applications.
+## Commands
 
-## Getting Started
+| Command     | Description                                         |
+|-------------|-----------------------------------------------------|
+| `init`      | Interactive wizard to create `.mcp.yml`             |
+| `docs`      | Generate README and inline documentation            |
+| `commit`    | Generate a conventional commit message from `git diff --cached` |
 
-To get started with this project, you can follow these steps:
+## Configuration
 
-1. Install Node.js on your system if you haven't already. You can download the latest version from the official website (<https://nodejs.org/en/>).
-2. Clone this repository to your local machine using Git. You can use the following command in your terminal or command prompt: `git clone https://github.com/user/{project.name}.git`.
-3. Navigate to the project directory and install the necessary dependencies by running `npm install` in your terminal or command prompt.
-4. Start the development server by running `npm run dev` in your terminal or command prompt. This will start the server on port 3000.
-5. Open a web browser and navigate to <http://localhost:3000/> to see the API documentation.
-6. You can also use the Postman or Insomnia to test the API endpoints.
-7. To deploy the project to production, you can use a cloud provider like AWS, Google Cloud, or Heroku, and follow their respective guides for deploying Node applications.
+All configuration lives in `.mcp.yml` at your project root. The file is created by `mcp-docgen init` and can be edited manually.
 
-## Documentation
+### Reference
 
-The documentation for this project is available in the `docs` folder. You can find more information about the API endpoints, authentication, and other features of the project in these documents.
+| Field                    | Type     | Default                                      | Description                                |
+|--------------------------|----------|----------------------------------------------|--------------------------------------------|
+| `project.name`           | string   | *(required)*                                 | Project name                               |
+| `project.stack`          | string[] | *(required)*                                 | Tech stack tags                            |
+| `ai.provider`            | string   | `ollama`                                     | AI provider (`ollama`, `gemini`, `claude`) |
+| `ai.model`               | string   | provider-specific                            | Model name                                 |
+| `ai.ollamaEndpoint`      | string   | `http://localhost:11434`                     | Ollama server URL                          |
+| `ai.maxTokens`           | integer  | `2048`                                       | Maximum output tokens                      |
+| `ai.fallback`            | string   | *(optional)*                                 | Fallback provider if primary fails         |
+| `docs.style`             | string   | `tsdoc`                                      | Doc comment style (`tsdoc`, `jsdoc`, `google`) |
+| `docs.autoGenerate`      | boolean  | `false`                                      | Auto-generate on save (future)             |
+| `docs.examples`          | boolean  | `true`                                       | Include `@example` blocks                  |
+| `commit.convention`      | string   | `conventional`                               | Commit style (`conventional`, `simple`)    |
+| `commit.types`           | string[] | `[feat, fix, docs, style, refactor, test, chore]` | Allowed commit types              |
+| `commit.maxLength`       | integer  | `72`                                         | Max subject line length                    |
+| `readme.template`        | string   | *(optional)*                                 | Custom README template path                |
+| `readme.includeToc`      | boolean  | `true`                                       | Include Table of Contents in README        |
+
+### Example `.mcp.yml`
+
+```yaml
+project:
+  name: my-project
+  stack:
+    - typescript
+    - node
+
+ai:
+  provider: ollama
+  model: codellama
+  ollamaEndpoint: http://localhost:11434
+  maxTokens: 2048
+
+docs:
+  style: tsdoc
+  autoGenerate: false
+  examples: true
+
+commit:
+  convention: conventional
+  maxLength: 72
+
+readme:
+  includeToc: true
+```
+
+## Provider Setup
+
+### Ollama (local)
+
+1. [Install Ollama](https://ollama.ai) and start the server:
+   ```bash
+   ollama serve
+   ```
+2. Pull a model (e.g. CodeLlama):
+   ```bash
+   ollama pull codellama
+   ```
+3. Set `ai.provider: ollama` in `.mcp.yml`.
+
+### Gemini
+
+1. Obtain an API key from [Google AI Studio](https://aistudio.google.com/).
+2. Set the environment variable:
+   ```bash
+   export GEMINI_API_KEY="your-key-here"
+   ```
+3. Set `ai.provider: gemini` in `.mcp.yml`.
+
+### Claude
+
+1. Obtain an API key from the [Anthropic Console](https://console.anthropic.com/).
+2. Set the environment variable:
+   ```bash
+   export ANTHROPIC_API_KEY="your-key-here"
+   ```
+3. Set `ai.provider: claude` in `.mcp.yml`.
+
+## Development
+
+```bash
+git clone <repo-url>
+cd mcp-docgen
+npm install
+npm run dev          # run with tsx (hot reload)
+npm run build        # compile to dist/
+npm test             # run test suite
+npm run typecheck    # type-check without emitting
+```
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+MIT
