@@ -2,9 +2,17 @@
   "name": "mcp-docgen",
   "version": "1.0.0",
   "description": "AI-powered documentation generator for codebases",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/init0-lux/mcp-docgen.git"
+  },
+  "homepage": "https://github.com/init0-lux/mcp-docgen#readme",
+  "bugs": {
+    "url": "https://github.com/init0-lux/mcp-docgen/issues"
+  },
   "main": "dist/cli.js",
   "bin": {
-    "mcp-docgen": "./dist/cli.js"
+    "mcp-docgen": "dist/cli.js"
   },
   "files": [
     "dist"
